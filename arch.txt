@@ -1,0 +1,292 @@
+# Voice-to-Slide Generator - Complete Architecture Document
+
+## Project Overview
+Enterprise-grade, self-contained presentation generator that converts 3-minute audio into polished HTML slide decks using OpenAI services.
+
+## Technology Stack
+
+### Core Technologies
+- **Development Framework:** React/Next.js
+- **Presentation Engine:** Reveal.js + D3.js
+- **Build System:** Webpack/Vite (single HTML bundler)
+- **AI Services:** OpenAI Whisper + GPT-4
+
+### Output Format
+- **Primary:** Self-contained HTML file (no server required)
+- **Secondary:** PDF export capability
+- **Key Benefit:** Offline, enterprise-friendly distribution
+
+## System Architecture
+
+### 1. Audio Input Module
+```
+Components:
+├── File Upload Interface (MP3, WAV, M4A)
+├── Real-time Recording (Web Audio API)
+├── Audio Preprocessing (noise reduction)
+├── Progress Tracking UI
+└── File Validation & Size Limits
+```
+
+### 2. OpenAI Integration Layer
+```
+Services:
+├── OpenAI Whisper API (Speech-to-Text)
+│   ├── Endpoint: https://api.openai.com/v1/audio/transcriptions
+│   ├── Cost: $0.006 per minute
+│   ├── Features: Timestamps, language detection
+│   └── Output: Transcript with metadata
+│
+└── OpenAI GPT-4 API (Content Analysis)
+    ├── Endpoint: https://api.openai.com/v1/chat/completions
+    ├── Cost: ~$0.15 per presentation
+    ├── Purpose: Structure analysis, slide generation
+    └── Output: Structured slide content + speaker notes
+```
+
+### 3. Content Processing Pipeline
+```
+Flow:
+Audio File → Whisper API → Raw Transcript
+              ↓
+Raw Transcript → GPT-4 API → Structured Content
+              ↓
+Structured Content → Slide Generator → 5+ Slides with Notes
+              ↓
+Slide Data → Template Engine → Styled Presentation
+              ↓
+Styled Presentation → Asset Bundler → Self-contained HTML
+```
+
+### 4. Slide Generation System
+```
+Components:
+├── Content Analyzer
+│   ├── Topic extraction
+│   ├── Key point identification
+│   ├── Natural break detection
+│   └── Data/chart recognition
+│
+├── Template Engine
+│   ├── Enterprise themes (Dark, Light, Corporate)
+│   ├── D3.js visualization templates
+│   ├── Layout optimization
+│   └── Responsive design
+│
+└── Speaker Notes Generator
+    ├── Detailed explanations
+    ├── Talking points
+    ├── Timing suggestions
+    └── Additional context
+```
+
+### 5. Self-Contained Packaging System
+```
+Build Process:
+├── Asset Inlining
+│   ├── CSS embedding
+│   ├── JavaScript bundling
+│   ├── Font base64 encoding
+│   └── Image embedding
+│
+├── Library Integration
+│   ├── Reveal.js core
+│   ├── D3.js library
+│   ├── Animation libraries (GSAP)
+│   └── Custom presentation logic
+│
+└── Output Generation
+    ├── Single HTML file creation
+    ├── Offline compatibility verification
+    ├── Cross-browser testing
+    └── Performance optimization
+```
+
+## OpenAI API Implementation Details
+
+### Authentication & Configuration
+```javascript
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  organization: process.env.OPENAI_ORG_ID // Optional
+});
+```
+
+### Whisper API Usage
+```javascript
+// Speech-to-Text Processing
+const transcription = await openai.audio.transcriptions.create({
+  file: audioFile,
+  model: "whisper-1",
+  response_format: "verbose_json",
+  timestamp_granularities: ["word", "segment"]
+});
+```
+
+### GPT-4 Content Analysis
+```javascript
+// Slide Structure Generation
+const completion = await openai.chat.completions.create({
+  model: "gpt-4-turbo-preview",
+  messages: [
+    {
+      role: "system",
+      content: "You are an expert presentation designer. Convert this transcript into a professional slide deck structure..."
+    },
+    {
+      role: "user", 
+      content: transcription.text
+    }
+  ],
+  response_format: { type: "json_object" }
+});
+```
+
+## Enterprise Features
+
+### Presentation Quality
+- **Visual Design:** Professional themes with corporate branding
+- **Animations:** Smooth transitions using GSAP/CSS animations  
+- **Interactivity:** D3.js data visualizations and interactive elements
+- **Accessibility:** Screen reader support, keyboard navigation
+- **Responsive:** Works on desktop, tablet, and mobile devices
+
+### Self-Contained Benefits
+- ✅ Zero server dependencies
+- ✅ Complete offline functionality
+- ✅ Single file distribution (email, USB, network shares)
+- ✅ Enterprise security compliance
+- ✅ Version control friendly
+- ✅ Cross-platform compatibility
+
+### Output Specifications
+- **Minimum Slides:** 5 slides per 3-minute audio
+- **File Size:** Optimized to under 5MB per presentation
+- **Format Support:** HTML (primary), PDF (secondary)
+- **Browser Support:** All modern browsers (Chrome, Firefox, Safari, Edge)
+
+## Technical Implementation Plan
+
+### Phase 1: Core Infrastructure (Week 1-2)
+1. Set up React development environment
+2. Implement OpenAI API integration
+3. Create audio upload/recording interface
+4. Build speech-to-text processing pipeline
+5. Design content analysis prompts for GPT-4
+
+### Phase 2: Content Processing (Week 3-4)
+1. Develop slide structure algorithm
+2. Create speaker notes generation
+3. Implement content distribution logic
+4. Build template system foundation
+5. Add error handling and validation
+
+### Phase 3: Presentation Engine (Week 5-6)
+1. Integrate Reveal.js framework
+2. Create enterprise theme system
+3. Implement D3.js visualization support
+4. Build responsive layout system
+5. Add animation and transition effects
+
+### Phase 4: Self-Contained Packaging (Week 7-8)
+1. Develop asset inlining system
+2. Create single HTML bundler
+3. Implement offline compatibility
+4. Add PDF export functionality
+5. Performance optimization and testing
+
+## File Structure
+```
+buildathon-project2/
+├── src/
+│   ├── components/
+│   │   ├── AudioInput.jsx
+│   │   ├── ProcessingStatus.jsx
+│   │   ├── SlidePreview.jsx
+│   │   └── ExportControls.jsx
+│   ├── services/
+│   │   ├── openai/
+│   │   │   ├── whisper.js
+│   │   │   ├── gpt4.js
+│   │   │   └── apiConfig.js
+│   │   ├── slideGenerator.js
+│   │   └── htmlBundler.js
+│   ├── templates/
+│   │   ├── enterprise/
+│   │   │   ├── dark-theme.css
+│   │   │   ├── light-theme.css
+│   │   │   └── corporate-theme.css
+│   │   └── d3-components/
+│   │       ├── charts.js
+│   │       ├── diagrams.js
+│   │       └── infographics.js
+│   ├── utils/
+│   │   ├── audioProcessor.js
+│   │   ├── contentAnalyzer.js
+│   │   └── assetInliner.js
+│   └── prompts/
+│       ├── slideStructure.js
+│       ├── speakerNotes.js
+│       └── contentOptimization.js
+├── build-tools/
+│   ├── self-contained-builder.js
+│   ├── asset-inliner.js
+│   └── bundle-optimizer.js
+├── templates/
+│   └── presentation-templates/
+├── public/
+│   └── sample-audio/
+├── .env.example
+├── package.json
+└── README.md
+```
+
+## Environment Configuration
+```bash
+# Required Environment Variables
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_ORG_ID=your_org_id_here (optional)
+NODE_ENV=development
+PORT=3000
+
+# Optional Configuration
+MAX_AUDIO_SIZE=50MB
+PROCESSING_TIMEOUT=300000
+CACHE_DURATION=3600
+```
+
+## Cost Analysis (OpenAI Usage)
+
+### Per Presentation Costs
+- **Whisper API:** ~$0.018 (3 minutes of audio)
+- **GPT-4 API:** ~$0.15 (transcript analysis + slide generation)
+- **Total:** ~$0.17 per presentation
+
+### Monthly Estimates
+- **Light Usage (10 presentations):** ~$1.70/month
+- **Medium Usage (100 presentations):** ~$17/month
+- **Heavy Usage (500 presentations):** ~$85/month
+
+## Success Metrics
+- ✅ Process 3-minute audio in under 2 minutes
+- ✅ Generate 5+ high-quality, coherent slides
+- ✅ Create self-contained HTML under 5MB
+- ✅ Achieve 95% uptime with OpenAI APIs
+- ✅ Enterprise-grade visual presentation quality
+- ✅ Zero server dependencies for end users
+
+## Security & Privacy
+- **API Keys:** Secured via environment variables
+- **Audio Files:** Temporary storage, auto-deletion after processing
+- **Transcripts:** Not permanently stored
+- **Generated Content:** Stored only in final HTML output
+- **Network:** HTTPS-only API communications
+- **Compliance:** GDPR/enterprise security ready
+
+## Deployment Strategy
+- **Development:** Local React development server
+- **Build:** Static build generation for self-contained HTML
+- **Distribution:** Generated HTML files distributed directly to users
+- **No Runtime Server:** Complete client-side solution after generation
+
+This architecture ensures enterprise-grade quality while maintaining complete offline functionality for end users.
